@@ -8,17 +8,50 @@
 
 int main(int argc, char *argv[])
 {
-    bool printOpcodeList = false;
-    bool validateOpcodeList = false;
+    if (argc < 2) {
+        displayHelp();
+        return 1;
+    }
+
+    int ret;
+    absl::string_view verb{argv[1]};
+
+    if (verb == "validate")
+        ret = runValidate(argc - 1, argv + 1);
+    else if (verb == "print")
+        ret = runPrint(argc - 1, argv + 1);
+    else {
+        displayHelp();
+        ret = 1;
+    }
+
+    return ret;
+}
+
+void displayHelp()
+{
+    std::cerr <<
+        "An opcode checker for SFZ instrument files\n"
+        "Usage: sfz-opcode-checker <verb> [option]...\n"
+        "\n"
+        "# print - scan opcodes used by SFZ files and display them.\n"
+        "\n"
+        "  sfz-opcode-checker print <sfz-file> [other-sfz-file]...\n"
+        "\n"
+        "# validate - scan opcodes used by SFZ files, and check their\n"
+        "             presence in the sfzformat.github.io database.\n"
+        "\n"
+        "  sfz-opcode-checker validate <-d syntax.yml> <sfz-file> [other-sfz-file]...\n"
+        "     -d <syntax.yml> : database file syntax.yml from sfzformat.github.io\n";
+}
+
+int runValidate(int argc, char *argv[])
+{
     fs::path opcodeDbPath;
 
-    for (int c; (c = getopt(argc, argv, "pd:")) != -1;) {
+    for (int c; (c = getopt(argc, argv, "d:")) != -1;) {
         switch (c) {
-        case 'p':
-            printOpcodeList = true;
-            break;
         case 'd':
-            validateOpcodeList = true;
             opcodeDbPath = optarg;
             break;
         default:
@@ -26,8 +59,67 @@ int main(int argc, char *argv[])
         }
     }
 
+    ///
     if (argc - optind < 1) {
-        std::cerr << "Please indicate at least one SFZ file to process.\n";
+        std::cerr << "You didn't indicate any SFZ files.\n";
+        return 1;
+    }
+
+    if (opcodeDbPath.empty()) {
+        std::cerr << "Please indicate a YAML database file with option -d.\n";
+        return 1;
+    }
+
+    ///
+    std::unique_ptr<SfzDb> db{SfzDb::loadYAML(opcodeDbPath)};
+
+    if (!db) {
+        std::cerr << "Error loading the opcode database from YAML.\n";
+        return 1;
+    }
+
+    ///
+    OpcodeNameSet opcodesUnordered;
+    for (int i = optind; i < argc; ++i) {
+        fs::path sfzFilePath{argv[i]};
+        if (!scanFileOpcodes(sfzFilePath, opcodesUnordered))
+            return 1;
+    }
+
+    ///
+    OpcodeNameList opcodeList{opcodesUnordered.begin(), opcodesUnordered.end()};
+    std::sort(opcodeList.begin(), opcodeList.end());
+
+    std::string reStr = db->createFatOpcodeRegexp();
+    std::regex re("^" + reStr + "$", std::regex::optimize);
+
+    bool success = true;
+
+    for (const std::string &opcode : opcodeList) {
+        bool match = std::regex_match(opcode, re);
+        if (!match)
+            success = false;
+        std::cout << (match ? u8"\u2705" : u8"\u274C") << " " << opcode << "\n";
+    }
+
+    if (!success)
+        return 1;
+
+    return 0;
+}
+
+int runPrint(int argc, char *argv[])
+{
+    for (int c; (c = getopt(argc, argv, "")) != -1;) {
+        switch (c) {
+        default:
+            return 1;
+        }
+    }
+
+    ///
+    if (argc - optind < 1) {
+        std::cerr << "You didn't indicate any SFZ files.\n";
         return 1;
     }
 
@@ -44,36 +136,8 @@ int main(int argc, char *argv[])
     std::sort(opcodeList.begin(), opcodeList.end());
 
     ///
-    if (printOpcodeList) {
-        for (const std::string &opcode : opcodeList)
-            std::cout << opcode << "\n";
-        return 0;
-    }
-
-    ///
-    if (validateOpcodeList) {
-        std::unique_ptr<SfzDb> db{SfzDb::loadYAML(opcodeDbPath)};
-
-        if (!db) {
-            std::cerr << "Error loading the opcode database from YAML.\n";
-            return 1;
-        }
-
-        std::string reStr = db->createFatOpcodeRegexp();
-        std::regex re("^" + reStr + "$", std::regex::optimize);
-
-        bool success = true;
-
-        for (const std::string &opcode : opcodeList) {
-            bool match = std::regex_match(opcode, re);
-            if (!match)
-                success = false;
-            std::cout << (match ? u8"\u2705" : u8"\u274C") << " " << opcode << "\n";
-        }
-
-        if (!success)
-            return 1;
-    }
+    for (const std::string &opcode : opcodeList)
+        std::cout << opcode << "\n";
 
     return 0;
 }
