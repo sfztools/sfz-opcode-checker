@@ -33,13 +33,13 @@ void displayHelp()
 {
     std::cerr <<
         "An opcode checker for SFZ instrument files\n"
-        "Usage: sfz-opcode-checker <verb> [option]...\n"
+        "Usage: " "\033[1m" "sfz-opcode-checker" "\033[0m" " <verb> [option]...\n"
         "\n"
-        "# print - scan opcodes used by SFZ files and display them.\n"
+        "# " "\033[1m" "print" "\033[0m" " - scan opcodes used by SFZ files and display them.\n"
         "\n"
         "  sfz-opcode-checker print <sfz-file> [other-sfz-file]...\n"
         "\n"
-        "# validate - scan opcodes used by SFZ files, and check their\n"
+        "# " "\033[1m" "validate" "\033[0m" " - scan opcodes used by SFZ files, and check their\n"
         "             presence in the sfzformat.github.io database.\n"
         "\n"
         "  sfz-opcode-checker validate <-d syntax.yml> <sfz-file> [other-sfz-file]...\n"
