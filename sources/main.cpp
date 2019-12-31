@@ -2,6 +2,7 @@
 #include "opcode_collecting_parser.h"
 #include "sfzformat_db.h"
 #include <getopt.h>
+#include <unistd.h>
 #include <algorithm>
 #include <regex>
 #include <iostream>
@@ -99,7 +100,20 @@ int runValidate(int argc, char *argv[])
         bool match = std::regex_match(opcode, re);
         if (!match)
             success = false;
-        std::cout << (match ? u8"\u2705" : u8"\u274C") << " " << opcode << "\n";
+
+#if 0 // it was complained that not all terminals will show these
+        absl::string_view txtGood = u8"\u2705";
+        absl::string_view txtFail = u8"\u274C";
+#else
+        absl::string_view txtGood = "[ OK ]";
+        absl::string_view txtFail = "[FAIL]";
+        if (isatty(1)) {
+            txtGood = "\033[32m" "[ OK ]" "\033[0m";
+            txtFail = "\033[31m" "[FAIL]" "\033[0m";
+        }
+#endif
+
+        std::cout << (match ? txtGood : txtFail) << " " << opcode << "\n";
     }
 
     if (!success)
