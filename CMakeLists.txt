@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 add_subdirectory(external/abseil-cpp EXCLUDE_FROM_ALL)
 
-project(sfzfoo)
+project(sfz-opcode-checker)
 
 #
 find_library(YAMLCPP_LIBRARY "yaml-cpp")
@@ -37,9 +37,9 @@ target_link_libraries(sfizz_parser
   PUBLIC absl::strings)
 
 #
-add_executable(sfzfoo
+add_executable(sfz-opcode-checker
   sources/main.cpp
   sources/sfzformat_db.cpp)
-target_link_libraries(sfzfoo
+target_link_libraries(sfz-opcode-checker
   PRIVATE sfizz_parser
   PRIVATE yaml-cpp)
