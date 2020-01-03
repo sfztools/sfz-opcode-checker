@@ -4,9 +4,16 @@ set(CMAKE_CXX_STANDARD 14)
 
 add_subdirectory(external/abseil-cpp EXCLUDE_FROM_ALL)
 
-option(USE_SYSTEM_YAML_CPP "Use the yaml-cpp system library" OFF)
-
 project(sfz-opcode-checker)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  set(USE_STATIC_LINK_DEFAULT ON)
+else()
+  set(USE_STATIC_LINK_DEFAULT OFF)
+endif()
+
+option(USE_SYSTEM_YAML_CPP "Use the yaml-cpp system library" OFF)
+option(USE_STATIC_LINK "Add `static` to the linker options" "${USE_STATIC_LINK_DEFAULT}")
 
 #
 if(USE_SYSTEM_YAML_CPP)
@@ -21,6 +28,10 @@ if(USE_SYSTEM_YAML_CPP)
   target_include_directories(yaml-cpp INTERFACE "${YAMLCPP_INCLUDE_DIR}")
   target_link_libraries(yaml-cpp INTERFACE "${YAMLCPP_LIBRARY}")
 else()
+  set(YAML_CPP_BUILD_CONTRIB OFF CACHE STRING "" FORCE)
+  set(YAML_CPP_BUILD_TOOLS OFF CACHE STRING "" FORCE)
+  set(YAML_CPP_BUILD_TESTS OFF CACHE STRING "" FORCE)
+  set(YAML_BUILD_SHARED_LIBS OFF CACHE STRING "" FORCE)
   add_subdirectory(external/yaml-cpp EXCLUDE_FROM_ALL)
 endif()
 
@@ -48,3 +59,7 @@ add_executable(sfz-opcode-checker
 target_link_libraries(sfz-opcode-checker
   PRIVATE sfizz_parser
   PRIVATE yaml-cpp)
+if(USE_STATIC_LINK)
+  target_link_options(sfz-opcode-checker
+    PRIVATE "-static")
+endif()
