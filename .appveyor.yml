@@ -1,0 +1,53 @@
+# Start builds on tags only (GitHub and BitBucket)
+skip_non_tags: true
+
+# Do not build feature branch with open Pull Requests
+skip_branch_with_pr: true
+
+image: Visual Studio 2017
+
+# scripts that are called at very beginning, before repo cloning
+init:
+  - git config --global core.autocrlf input
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+
+matrix:
+  fast_finish: true # set this flag to immediately finish build once one of the jobs fails.
+  allow_failures:
+    - platform: x64
+      configuration: Release
+
+  exclude:
+    - platform: x86
+      configuration: Debug
+
+platform: x64
+configuration: Release
+
+build_script:
+  - ps: cd ".\Builds\VisualStudio2017"
+  - ps: MSBuild.exe .\sfz-opcode-checker.sln /p:Configuration=Release
+  - ps: cd .\..\..\
+
+after_build:
+  - ps: mkdir Deployment
+  - ps: cp LICENSE Deployment\LICENSE.txt
+  - ps: cp "Builds\VisualStudio2017\x64\Release\Standalone Plugin\sfz-opcode-checker.exe" Deployment\
+  - cmd: move Output\sfz-opcode-checker.exe sfz-opcode-checker-%APPVEYOR_REPO_TAG_NAME%-x64.exe
+
+artifacts:
+  - name: application
+    path: 'sfz-opcode-checker*.exe'
+
+# Deploy to GitHub Releases
+# See https://www.appveyor.com/docs/deployment/github/
+deploy:
+  - provider: GitHub
+    auth_token:
+      secure: 4rBQbfEmkVDnfkceJk+euBrXZZOg+fn6OhQCXibythef/6qVg9+BqKCL2s9KO1kp
+    artifact: application
+    draft: false
+    prerelease: false
+    force_update: true
+    on:
+      appveyor_repo_tag: true
