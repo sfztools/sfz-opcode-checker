@@ -1,0 +1,41 @@
+language: cpp
+env:
+  global:
+  - INSTALL_DIR="sfz-opcode-checker-${TRAVIS_BRANCH}-${TRAVIS_OS_NAME}-${TRAVIS_CPU_ARCH}"
+
+jobs:
+  include:
+  - os:   linux
+    arch: amd64
+    dist: bionic
+
+  - os:   linux
+    arch: arm64
+    dist: bionic
+
+  - os: osx
+    osx_image: xcode10.1
+
+before_install:
+- bash ${TRAVIS_BUILD_DIR}/.travis/before_install.sh
+
+script:
+- bash ${TRAVIS_BUILD_DIR}/.travis/script.sh
+
+after_success:
+- bash ${TRAVIS_BUILD_DIR}/.travis/after_success.sh
+
+deploy:
+  provider:     releases
+  skip_cleanup: true
+  file:         "${INSTALL_DIR}.tar.gz"
+  token:
+    secure: "HBkLu4CuPnsnFlB8HfCwArVXRGv4/ENt02tPktWPLSSVyQdHc8bIHlDZFzcW8irKTqHA3cZUWzhjJ3wuW6nENp/5Wl80WBsnstDXGJVoALcQJBnehZZ5pEcqSkI734QyoDHIOlrQ3BtWk2ya+l0IxQCE02221vIDc/2T6n7NwO8Nr1wFBfBaGPwrFer70aYkdtyb01cIXqKeLFnQIDWJl4otPwLRNxqzo23LtOQrvcZjB0OjOSIthQ6IylAARaW9mttVWKfUIoTzH+xvRlbp9bx81c7GjFBQCp4YgIMM31KPHhTfyMbM0PCM1R54RWsZgK7RJ9Djmt7UwA0uSxg/G/p5clSeXZj20bQuuBSltC9mwlRx//UEg+4s9/O1KoR8IsiTv8S287t49RZU5dApgGmbmxraSnesVRmvKU4iomi/OZaaV73EaobEmjln0g1QsnQmB6V7YwhPJ9eTH1XKO4oU5uEpUQtfPoAdQwww7vEZ5swYu8/ycEVCFTP4NGEmemBkqgg0HIuNivgcmOA38ljg1nuM5aEUholuwn15sVgP6w3y3GlJlVIKUFYqxqclDAR3Dqw8rqM9tlBpqZH7JDGLc5E52ZPt/c4y989izLEIPfJ3xwcaSO4+jHudQ6JGBNIG7CWH9emvTWpPQkTkZgXVj4gxgPLayRjk3uWxZog="
+  on:
+    repo: "${TRAVIS_REPO_SLUG}"
+    tags: true
+
+notifications:
+  irc:
+    channels:
+    - "ircs://chat.freenode.net:7070/#sfztools-dev"

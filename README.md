@@ -1,10 +1,11 @@
 # sfz-opcode-checker
 
+[![Travis Build Status]](https://travis-ci.com/sfztools/sfz-opcode-checker)
+
 The **sfz-opcode-checker** utility scans opcodes from any number of given SFZ
 files, and checks their existence in the public specification.
 
-The source of known opcodes is the [YAML database](https://github.com/sfzformat/sfzformat.github.io/blob/source/_data/sfz/syntax.yml)
-from the [reference site](https://sfzformat.github.io/).
+The source of known opcodes is the [YAML database] from the [reference site].
 
 ## Usage
 
@@ -14,3 +15,8 @@ sfz-opcode-checker validate -d syntax.yml *.sfz
 ```
 
 Run the program without arguments for additional information.
+
+
+[Travis Build Status]: https://img.shields.io/travis/com/sfztools/sfz-opcode-checker.svg?label=Linux&style=popout&logo=travis
+[YAML database]:  https://github.com/sfzformat/sfzformat.github.io/blob/source/_data/sfz/syntax.yml
+[reference site]: https://sfzformat.github.io/
