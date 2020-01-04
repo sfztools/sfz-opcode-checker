@@ -17,6 +17,6 @@ sfz-opcode-checker validate -d syntax.yml *.sfz
 Run the program without arguments for additional information.
 
 
-[Travis Build Status]: https://img.shields.io/travis/com/sfztools/sfz-opcode-checker.svg?label=Linux&style=popout&logo=travis
+[Travis Build Status]: https://img.shields.io/travis/com/sfztools/sfz-opcode-checker.svg?label=Linux/macOS&style=popout&logo=travis
 [YAML database]:  https://github.com/sfzformat/sfzformat.github.io/blob/source/_data/sfz/syntax.yml
 [reference site]: https://sfzformat.github.io/
