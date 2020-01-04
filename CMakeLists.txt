@@ -15,7 +15,7 @@ endif()
 option(USE_SYSTEM_YAML_CPP "Use the yaml-cpp system library" OFF)
 option(USE_STATIC_LINK "Add `static` to the linker options" "${USE_STATIC_LINK_DEFAULT}")
 
-#
+# yaml-cpp
 if(USE_SYSTEM_YAML_CPP)
     find_library(YAMLCPP_LIBRARY "yaml-cpp")
     find_path(YAMLCPP_INCLUDE_DIR "yaml-cpp/yaml.h")
@@ -35,7 +35,7 @@ else()
     add_subdirectory(external/yaml-cpp EXCLUDE_FROM_ALL)
 endif()
 
-#
+# Download feature
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     find_library(WININET_LIBRARY "wininet")
 else()
@@ -45,12 +45,12 @@ else()
     target_link_libraries(curl INTERFACE ${CURL_LIBRARIES})
 endif()
 
-#
+# ghc / std::filesystem
 add_library(ghc_filesystem INTERFACE)
 target_include_directories(ghc_filesystem
     INTERFACE external/ghc)
 
-#
+# sfizz_parser
 add_library(sfizz_parser STATIC
     external/sfizz/sfizz/Opcode.cpp
     external/sfizz/sfizz/Parser.cpp
@@ -62,7 +62,7 @@ target_link_libraries(sfizz_parser
     PUBLIC absl::optional
     PUBLIC absl::strings)
 
-#
+# Build & link
 add_executable(sfz-opcode-checker
     sources/main.cpp
     sources/sfzformat_db.cpp)
