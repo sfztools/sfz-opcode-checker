@@ -36,6 +36,22 @@ else()
 endif()
 
 #
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  find_library(WININET_LIBRARY "wininet")
+else()
+  find_library(CURL_LIBRARY "curl")
+  find_path(CURL_INCLUDE_DIR "curl/curl.h")
+  message(STATUS "curl library: ${CURL_LIBRARY}")
+  message(STATUS "curl headers: ${CURL_INCLUDE_DIR}")
+  if(NOT CURL_LIBRARY OR NOT CURL_INCLUDE_DIR)
+    message(FATAL_ERROR "cannot find curl")
+  endif()
+  add_library(curl INTERFACE)
+  target_include_directories(curl INTERFACE "${CURL_INCLUDE_DIR}")
+  target_link_libraries(curl INTERFACE "${CURL_LIBRARY}")
+endif()
+
+#
 add_library(ghc_filesystem INTERFACE)
 target_include_directories(ghc_filesystem
   INTERFACE external/ghc)
@@ -59,6 +75,13 @@ add_executable(sfz-opcode-checker
 target_link_libraries(sfz-opcode-checker
   PRIVATE sfizz_parser
   PRIVATE yaml-cpp)
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  target_link_libraries(sfz-opcode-checker
+    PRIVATE "${WININET_LIBRARY}")
+else()
+  target_link_libraries(sfz-opcode-checker
+    PRIVATE curl)
+endif()
 if(USE_STATIC_LINK)
   target_link_options(sfz-opcode-checker
     PRIVATE "-static")
