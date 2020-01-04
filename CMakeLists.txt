@@ -86,3 +86,6 @@ if(USE_STATIC_LINK)
   target_link_options(sfz-opcode-checker
     PRIVATE "-static")
 endif()
+
+# Installation
+install (TARGETS sfz-opcode-checker DESTINATION "${CMAKE_INSTALL_BINDIR}")
