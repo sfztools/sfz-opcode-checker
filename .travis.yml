@@ -19,6 +19,9 @@ jobs:
 before_install:
 - bash ${TRAVIS_BUILD_DIR}/.travis/before_install.sh
 
+install:
+- bash ${TRAVIS_BUILD_DIR}/.travis/install.sh
+
 script:
 - bash ${TRAVIS_BUILD_DIR}/.travis/script.sh
 
