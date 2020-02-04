@@ -17,6 +17,7 @@ void displayHelp();
 int runValidate(int argc, char *argv[]);
 int runPrint(int argc, char *argv[]);
 int runUpdate(int argc, char *argv[]);
+int runList(int argc, char *argv[]);
 bool performUpdate();
 bool scanFileOpcodes(const ghc::filesystem::path &path, OpcodeNameSet &set);
 const ghc::filesystem::path &getDbCacheDir();

@@ -28,6 +28,8 @@ int main(int argc, char *argv[])
         ret = runPrint(argc - 1, argv + 1);
     else if (verb == "update")
         ret = runUpdate(argc - 1, argv + 1);
+    else if (verb == "list")
+        ret = runList(argc - 1, argv + 1);
     else {
         displayHelp();
         ret = 1;
@@ -55,7 +57,30 @@ void displayHelp()
         "# " "\033[1m" "update" "\033[0m" " - update the database file syntax.yml from sfzformat.github.io\n"
         "\n"
         "  sfz-opcode-checker update\n"
+        "\n"
+        "# " "\033[1m" "list" "\033[0m" " - print a list of known opcodes\n"
+        "\n"
+        "  sfz-opcode-checker list [-d syntax.yml]\n"
         ;
+}
+
+static std::unique_ptr<SfzDb> loadSfzDb(const fs::path &opcodeDbPath)
+{
+    std::unique_ptr<SfzDb> db;
+
+    if (!opcodeDbPath.empty())
+        db.reset(SfzDb::loadYAML(opcodeDbPath));
+    else {
+        fs::path dbPath = getDbCacheDir() / "syntax.yml";
+        db.reset(SfzDb::loadYAML(dbPath));
+        if (!db) {
+            if (!performUpdate())
+                return nullptr;
+            db.reset(SfzDb::loadYAML(dbPath));
+        }
+    }
+
+    return db;
 }
 
 int runValidate(int argc, char *argv[])
@@ -78,20 +103,7 @@ int runValidate(int argc, char *argv[])
         return 1;
     }
 
-    std::unique_ptr<SfzDb> db;
-
-    if (!opcodeDbPath.empty())
-        db.reset(SfzDb::loadYAML(opcodeDbPath));
-    else {
-        fs::path dbPath = getDbCacheDir() / "syntax.yml";
-        db.reset(SfzDb::loadYAML(dbPath));
-        if (!db) {
-            if (!performUpdate())
-                return 1;
-            db.reset(SfzDb::loadYAML(dbPath));
-        }
-    }
-
+    std::unique_ptr<SfzDb> db = loadSfzDb(opcodeDbPath);
     if (!db) {
         std::cerr << "Error loading the opcode database from YAML.\n";
         return 1;
@@ -191,6 +203,32 @@ int runUpdate(int argc, char *argv[])
 
     if (!performUpdate())
         return 1;
+
+    return 0;
+}
+
+int runList(int argc, char *argv[])
+{
+    fs::path opcodeDbPath;
+
+    for (int c; (c = getopt(argc, argv, "d:")) != -1;) {
+        switch (c) {
+        case 'd':
+            opcodeDbPath = optarg;
+            break;
+        default:
+            return 1;
+        }
+    }
+
+    std::unique_ptr<SfzDb> db = loadSfzDb(opcodeDbPath);
+    if (!db) {
+        std::cerr << "Error loading the opcode database from YAML.\n";
+        return 1;
+    }
+
+    for (const std::string &opcode : db->getOpcodes())
+        std::cout << opcode << '\n';
 
     return 0;
 }

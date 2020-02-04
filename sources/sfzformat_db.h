@@ -10,6 +10,7 @@ class SfzDb {
 public:
     static SfzDb *loadYAML(const ghc::filesystem::path &path);
 
+    const std::vector<std::string> &getOpcodes() { return _opcodes; }
     std::string createFatOpcodeRegexp() const;
 
 private:
