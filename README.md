@@ -20,5 +20,5 @@ Run the program without arguments for additional information.
 
 [Travis Build Status]:   https://img.shields.io/travis/com/sfztools/sfz-opcode-checker.svg?label=Linux&style=popout&logo=travis
 [AppVeyor Build Status]: https://img.shields.io/appveyor/ci/sfztools/sfz-opcode-checker.svg?label=Windows&style=popout&logo=appveyor
-[YAML database]:  https://github.com/sfzformat/sfzformat.github.io/blob/source/_data/sfz/syntax.yml
-[reference site]: https://sfzformat.github.io/
+[YAML database]:  https://raw.githubusercontent.com/sfz/sfz.github.io/refs/heads/source/data/sfz/syntax.yml
+[reference site]: https://sfzformat.com/
