@@ -32,5 +32,5 @@ typedef std::unique_ptr<std::remove_pointer<HINTERNET>::type, HINTERNET_delete> 
 #endif
 
 #define SFZ_DB_HOST "raw.githubusercontent.com"
-#define SFZ_DB_PATH "/sfzformat/sfzformat.github.io/source/_data/sfz/syntax.yml"
+#define SFZ_DB_PATH "/sfz/sfz.github.io/refs/heads/source/data/sfz/syntax.yml"
 #define SFZ_DB_URL "https://" SFZ_DB_HOST SFZ_DB_PATH
